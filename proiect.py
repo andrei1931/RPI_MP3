@@ -1,15 +1,22 @@
+import os
 from flask import Flask, render_template, request, flash
 import pygame
 
 # Initialize Pygame mixer
 pygame.mixer.init()
 
-# Initialize a global list to store the names of the MP3 files
+# Initialize a global list to store the paths of the MP3 files
 mp3_files = []
+
+# Define the path to the 'music' directory within the project
+MUSIC_DIR = os.path.join(os.getcwd(), 'music')
+
+# Ensure that the 'music' directory exists; create it if it doesn't
+os.makedirs(MUSIC_DIR, exist_ok=True)
 
 # Define functions to play, pause, and skip songs
 def play_music():
-    pygame.mixer.music.load(mp3_files[i])
+    pygame.mixer.music.load(mp3_files[-1])  # Load the most recently added file
     pygame.mixer.music.play()
 
 def pause_music():
@@ -22,9 +29,9 @@ def stop_music():
     pygame.mixer.music.stop()
 
 def skip_music():
-    global i
-    i = (i + 1) % len(mp3_files)
-    play_music()
+    if len(mp3_files) > 1:
+        mp3_files.pop(0)  # Remove the oldest file
+        play_music()
 
 app = Flask(__name__)
 
@@ -38,12 +45,14 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
     file = request.files['file']
-    filename = file.filename
-    file.save(filename)
-    global mp3_files
-    mp3_files.append(filename)
-    play_music()
-    flash('File uploaded and played successfully!')
+    if file and file.filename.endswith('.mp3'):
+        filename = os.path.join(MUSIC_DIR, file.filename)
+        file.save(filename)
+        mp3_files.append(filename)
+        play_music()
+        flash('File uploaded and played successfully!')
+    else:
+        flash('Please upload an MP3 file.')
     return 'File uploaded and played successfully'
 
 if __name__ == '__main__':
