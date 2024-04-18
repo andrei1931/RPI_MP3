@@ -2,40 +2,65 @@
 <html>
 <head>
     <title>MP3 Player</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script type="text/javascript" src="/eel.js"></script>
     <script>
         // Call Python functions from JavaScript
         function playMusic() {
-            eel.play_music()
+            eel.play_music();
         }
 
         function pauseMusic() {
-            eel.pause_music()
+            eel.pause_music();
         }
 
         function resumeMusic() {
-            eel.resume_music()
+            eel.resume_music();
         }
 
         function stopMusic() {
-            eel.stop_music()
+            eel.stop_music();
         }
 
         function skipMusic() {
-            eel.skip_music()
+            eel.skip_music();
         }
     </script>
 </head>
-<body>
-    <h1 id="song-title"></h1>
-    <button onclick="playMusic()">Play</button>
-    <button onclick="pauseMusic()">Pause</button>
-    <button onclick="resumeMusic()">Resume</button>
-    <button onclick="stopMusic()">Stop</button>
-    <button onclick="skipMusic()">Skip</button>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <input type="submit" value="Upload">
-    </form>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">MP3 Player</h1>
+
+        <!-- Song Title Display -->
+        <div class="text-center mb-4">
+            <h2 id="song-title"></h2>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="text-center mb-4">
+            <button class="btn btn-primary mx-2" onclick="playMusic()">Play</button>
+            <button class="btn btn-warning mx-2" onclick="pauseMusic()">Pause</button>
+            <button class="btn btn-success mx-2" onclick="resumeMusic()">Resume</button>
+            <button class="btn btn-danger mx-2" onclick="stopMusic()">Stop</button>
+            <button class="btn btn-info mx-2" onclick="skipMusic()">Skip</button>
+        </div>
+
+        <!-- File Upload Form -->
+        <div class="text-center">
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+                <div class="custom-file mb-3">
+                    <input type="file" class="custom-file-input" id="fileInput" name="file" accept=".mp3">
+                    <label class="custom-file-label" for="fileInput">Choose MP3 file</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
