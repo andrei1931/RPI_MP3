@@ -55,5 +55,11 @@ def upload():
         flash('Please upload an MP3 file.')
     return 'File uploaded and played successfully'
 
+@app.route('/lista')
+def lista():
+    # Get list of MP3 files in the 'music' directory
+    mp3_files = [f for f in os.listdir(MUSIC_DIR) if f.endswith('.mp3')]
+    return render_template('lista.html', mp3_files=mp3_files)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
