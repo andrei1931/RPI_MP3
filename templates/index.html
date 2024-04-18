@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MP3 Player</title>
+    <script type="text/javascript" src="/eel.js"></script>
+    <script>
+        // Call Python functions from JavaScript
+        function playMusic() {
+            eel.play_music()
+        }
+
+        function pauseMusic() {
+            eel.pause_music()
+        }
+
+        function resumeMusic() {
+            eel.resume_music()
+        }
+
+        function stopMusic() {
+            eel.stop_music()
+        }
+
+        function skipMusic() {
+            eel.skip_music()
+        }
+    </script>
+</head>
+<body>
+    <h1 id="song-title"></h1>
+    <button onclick="playMusic()">Play</button>
+    <button onclick="pauseMusic()">Pause</button>
+    <button onclick="resumeMusic()">Resume</button>
+    <button onclick="stopMusic()">Stop</button>
+    <button onclick="skipMusic()">Skip</button>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Upload">
+    </form>
+</body>
+</html>
