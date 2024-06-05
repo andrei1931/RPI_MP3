@@ -2,31 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista Melodii</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Uploaded Songs</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="mb-4">Lista Melodii</h1>
-        <ul class="list-group">
-            {% for mp3_file in mp3_files %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ mp3_file }}
-                <button class="btn btn-primary" onclick="playMusic('{{ mp3_file }}')">Play</button>
-            </li>
+    <div class="container">
+        <h1 class="my-4 text-center">Uploaded Songs</h1>
+        <a href="/" class="btn btn-secondary mb-4">Back to Home</a>
+        <div class="list-group">
+            {% for file in files %}
+                <div class="list-group-item">
+                    <h5 class="mb-1">{{ file }}</h5>
+                    <audio controls class="mb-3">
+                        <source src="{{ url_for('uploaded_file', filename=file) }}" type="audio/mp3">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
     </div>
-    <script>
-        function playMusic(filename) {
-            var audio = new Audio('/music/' + filename);  // Path to MP3 file
-            if (audio.paused) {
-                audio.play();
-            } else {
-                audio.pause();
-            }
-        }
-    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

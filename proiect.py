@@ -1,65 +1,65 @@
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
 import os
-from flask import Flask, render_template, request, flash
-import pygame
 
-# Initialize Pygame mixer
-pygame.mixer.init()
+app = Flask(__name__,static_url_path='')
+app.config['UPLOAD_FOLDER'] = 'music'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///music.db'
+app.config['SECRET_KEY'] = 'your_secret_key'
 
-# Initialize a global list to store the paths of the MP3 files
-mp3_files = []
+db = SQLAlchemy(app)
 
-# Define the path to the 'music' directory within the project
-MUSIC_DIR = os.path.join(os.getcwd(), 'music')
+class Music(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
 
-# Ensure that the 'music' directory exists; create it if it doesn't
-os.makedirs(MUSIC_DIR, exist_ok=True)
-
-# Define functions to play, pause, and skip songs
-def play_music():
-    pygame.mixer.music.load(mp3_files[-1])  # Load the most recently added file
-    pygame.mixer.music.play()
-
-def pause_music():
-    pygame.mixer.music.pause()
-
-def resume_music():
-    pygame.mixer.music.unpause()
-
-def stop_music():
-    pygame.mixer.music.stop()
-
-def skip_music():
-    if len(mp3_files) > 1:
-        mp3_files.pop(0)  # Remove the oldest file
-        play_music()
-
-app = Flask(__name__)
-
-# Set a secret key for Flask to use for securely generating CSRF tokens
-app.secret_key = 'mysecretkey'
+    def __repr__(self):
+        return f'<Music {self.title}>'
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    music_files = Music.query.all()
+    return render_template('index.html', music_files=music_files)
 
-@app.route('/upload', methods=['POST'])
+@app.route('/upload', methods=['GET', 'POST'])
 def upload():
-    file = request.files['file']
-    if file and file.filename.endswith('.mp3'):
-        filename = os.path.join(MUSIC_DIR, file.filename)
-        file.save(filename)
-        mp3_files.append(filename)
-        play_music()
-        flash('File uploaded and played successfully!')
-    else:
-        flash('Please upload an MP3 file.')
-    return 'File uploaded and played successfully'
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        title = request.form['title']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and file.filename.endswith('.mp3'):
+            filename = file.filename
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            
+            new_file = Music(filename=filename, title=title)
+            db.session.add(new_file)
+            db.session.commit()
+            return redirect(url_for('index'))
+    return render_template('upload.html')
 
-@app.route('/lista')
-def lista():
-    # Get list of MP3 files in the 'music' directory
-    mp3_files = [f for f in os.listdir(MUSIC_DIR) if f.endswith('.mp3')]
-    return render_template('lista.html', mp3_files=mp3_files)
+@app.route('/music/<filename>')
+def music(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/delete/<int:id>')
+def delete(id):
+    file_to_delete = Music.query.get_or_404(id)
+    try:
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], file_to_delete.filename))
+        db.session.delete(file_to_delete)
+        db.session.commit()
+        return redirect('/')
+    except Exception as e:
+        flash('Could not delete file')
+        return redirect('/')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
